@@ -1,11 +1,15 @@
+#include <chrono>
 #include <cstdlib>
-#include <fstream>
-#include <future>
 #include <iostream>
 #include <random>
 #include <string>
 
 using namespace std;
+
+int CurrentWeek;
+mt19937 gen(static_cast<unsigned int>(
+    std::chrono::high_resolution_clock::now().time_since_epoch().count()));
+uniform_int_distribution<int> dist;
 
 enum Types { oral, exerсise, numbers, no_task };
 struct Object {
@@ -26,11 +30,11 @@ Object lessons[] = {
 
 };
 
-int schedule[5][7] = {{1, 2, 3, 0, 4, 5, 16},
-                      {6, 5, 7, 2, 0, 8, 16},
-                      {9, 2, 0, 10, 4, 2, 3},
-                      {3, 11, 2, 6, 13, 8, 12},
-                      {14, 1, 2, 9, 0, 15, 16}};
+const int schedule[5][7] = {{1, 2, 3, 0, 4, 5, 16},
+                            {6, 5, 7, 2, 0, 8, 16},
+                            {9, 2, 0, 10, 4, 2, 3},
+                            {3, 11, 2, 6, 13, 8, 12},
+                            {14, 1, 2, 9, 0, 15, 16}};
 
 void calculateTimesPerWeek() {
   for (int i = 0; i < 5; i++)
@@ -38,13 +42,9 @@ void calculateTimesPerWeek() {
       lessons[schedule[i][j]].times_per_week++;
 }
 
-int CurrentWeek;
-std::mt19937 gen(static_cast<unsigned int>(
-    std::chrono::high_resolution_clock::now().time_since_epoch().count()));
-
 string CreateNumbers(int n, int min, int max) {
   string s = "№ ";
-  std::uniform_int_distribution<int> dist(min, max);
+  dist = uniform_int_distribution<int>(min, max);
   for (int i = 0; i < n; i++)
     s += to_string(dist(gen)) + ", ";
   s.pop_back();
@@ -57,7 +57,7 @@ void GenerateTask(int id, int n) {
     return;
   string task;
 
-  std::uniform_int_distribution<int> dist(-1, 1);
+  dist = uniform_int_distribution<int>(-1, 1);
   switch (lessons[id].type) {
   case oral:
     task = "$" + to_string(CurrentWeek * min(lessons[id].times_per_week, 2) +
@@ -84,6 +84,7 @@ void GenerateTask(int id, int n) {
   case no_task:
     break;
   }
+
   cout << n + 1 << ". " << lessons[id].Name << "\t" << task << endl;
 }
 
@@ -91,7 +92,9 @@ int main() {
   cout << "Введите номер параграфа по предмету, который 1 раз в неделю: ";
   cin >> CurrentWeek;
   cout << endl;
+
   calculateTimesPerWeek();
+
   for (int i = 0; i < 5; i++) {
     for (int j = 0; j < 7; j++)
       GenerateTask(schedule[i][j], j);
