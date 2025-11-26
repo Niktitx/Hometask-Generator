@@ -59,8 +59,8 @@ void GenerateTask(int id, int n) {
   std::uniform_int_distribution<int> dist(-1, 1);
   switch (lessons[id].type) {
   case oral:
-    task =
-        "$" + to_string(CurrentWeek * lessons[id].times_per_week + dist(gen));
+    task = "$" + to_string(CurrentWeek * min(lessons[id].times_per_week, 2) +
+                           dist(gen));
     break;
   case exerсise:
     dist = uniform_int_distribution<int>(10, 20);
